@@ -63,7 +63,7 @@ OutputCount = 2
     
 
     Next I
-    
+    'populate ticker name,greatest % increase, greatest % decrease, greatest Stock volume
     Call GetGreatest
 End Sub
 
@@ -129,7 +129,7 @@ Dim MaxStockVolume As Long
 With ActiveSheet
         LastRow = .Cells(.Rows.Count, "N").End(xlUp).Row
         LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
-    End With
+
 rngString = "N1:N" & LastRow
 Set gRng = Range(rngString)
 MaxIncrease = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
@@ -137,24 +137,19 @@ MinIncrease = WorksheetFunction.Match(WorksheetFunction.Min(gRng), gRng, 0)
 
 'MsgBox MaxIncrease & " " & MinIncrease
 'MATCH(MAX(N1:N3001),N1:N3001,0)
-Range("S2").Value = FormatPercent(WorksheetFunction.Max(gRng), 2)
-Range("S3").Value = FormatPercent(WorksheetFunction.Min(gRng), 2)
-rngString = "L2:L" & LastRow
+.Range("S2").Value = FormatPercent(WorksheetFunction.Max(gRng), 2)
+.Range("S3").Value = FormatPercent(WorksheetFunction.Min(gRng), 2)
+rngString = "L1:L" & LastRow
 Set gRng = Range(rngString)
-Range("S4").Value = WorksheetFunction.Max(gRng)
+.Range("S4").Value = WorksheetFunction.Max(gRng)
 MaxStockVolume = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
 'MsgBox "Max Increase " & MaxIncrease & " " & "Min Increase " & MinIncrease & "Max Stock Volume " & MaxStockVolume
-Range("R2").Value = Cells(MaxIncrease, 9).Value
-Range("R3").Value = Cells(MinIncrease, 9).Value
-Range("R4").Value = Cells(MaxStockVolume, 9).Value
-'Range("R2").Value =
-'=VLOOKUP("S2",I2:N3001,1)
-'select Column N as Range
-'Get Min of Column N as Greatest Decrease
-'Get Max of Column N as Greatest Increase
-'select Column L as range
-'Get Max of Column L as Greatest Stock Volume
-'use values to find ticker
+.Range("R2").Value = Cells(MaxIncrease, 9).Value
+.Range("R3").Value = Cells(MinIncrease, 9).Value
+.Range("R4").Value = Cells(MaxStockVolume, 9).Value
+
+.Range("R2:S4").Columns.AutoFit
+End With
 
 End Sub
 
@@ -168,35 +163,38 @@ Function CreateHeaderRow():
     Dim StartColumn As Long
     Dim HeaderRow As Long
     
-    With ActiveSheet
-        LastRow = .Cells(.Rows.Count, "A").End(xlUp).Row
-        LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
-    End With
+    'With ActiveSheet
+     '   LastRow = .Cells(.Rows.Count, "A").End(xlUp).Row
+      '  LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
+    'End With
       'go 1 over from blank column
-    StartColumn = LastColumn + 2
+    StartColumn = 9
     HeaderRow = 1
     'populate header row
+    With ActiveSheet
     'Ticker,Yearly Change, Percent Change,Total Stock Volume
-    Cells(HeaderRow, StartColumn).Value = "Ticker"
-    Cells(HeaderRow, StartColumn + 1).Value = "Year Open"
-    Cells(HeaderRow, StartColumn + 2).Value = "Year Close"
-    Cells(HeaderRow, StartColumn + 3).Value = "Total Stock Volume"
-    Cells(HeaderRow, StartColumn + 4).Value = "Yearly Change"
-    Cells(HeaderRow, StartColumn + 5).Value = "Percent Change"
+    .Cells(HeaderRow, StartColumn).Value = "Ticker"
+    .Cells(HeaderRow, StartColumn + 1).Value = "Year Open"
+    .Cells(HeaderRow, StartColumn + 2).Value = "Year Close"
+    .Cells(HeaderRow, StartColumn + 3).Value = "Total Stock Volume"
+    .Cells(HeaderRow, StartColumn + 4).Value = "Yearly Change"
+    .Cells(HeaderRow, StartColumn + 5).Value = "Percent Change"
     'go 3 columns over then Ticker, Value
-    Cells(HeaderRow, StartColumn + 9).Value = "Ticker"
-    Cells(HeaderRow, StartColumn + 10).Value = "Value"
+    .Cells(HeaderRow, StartColumn + 9).Value = "Ticker"
+    .Cells(HeaderRow, StartColumn + 10).Value = "Value"
     'go 1 row down and 2 columns to the left
     'Greatest % Increase
-    Cells(HeaderRow + 1, StartColumn + 8) = "Greatest % Increase"
+    .Cells(HeaderRow + 1, StartColumn + 8) = "Greatest % Increase"
     'go 1 row down
     'Greatest% Decrease
-    Cells(HeaderRow + 2, StartColumn + 8) = "Greatest % Decrease"
+    .Cells(HeaderRow + 2, StartColumn + 8) = "Greatest % Decrease"
     'go 1 row down
     'Greatest Total Volume
-    Cells(HeaderRow + 3, StartColumn + 8) = "Greatest Total Volumne"
-    ActiveSheet.Range("I1:N1").Columns.AutoFit
-    ActiveSheet.Range("Q1:S4").Columns.AutoFit
+    .Cells(HeaderRow + 3, StartColumn + 8) = "Greatest Total Volumne"
+    .Range("I1:N1").Columns.AutoFit
+    .Range("Q1:S4").Columns.AutoFit
+    
+    End With
     
     
     
@@ -206,22 +204,6 @@ Function CreateHeaderRow():
 
 End Function
 
-Function FindValue(SearchValue As Double, Percent As Boolean)
-If Percent = True Then
-   Columns("N:N").Select
-   
-    Selection.Find(What:=SearchValue, After:=ActiveCell, LookIn:=xlValues, _
-        LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
-        MatchCase:=False, SearchFormat:=False).Activate
-    Dim RowNum As Long
-    Dim ColNum As Long
-    RowNum = ActiveCell.Row
-    ColNum = ActiveCell.Column
-    Ticker = Cells(RowNum, ColNum - 5).Value
-    
-    MsgBox "Ticker is:" & Ticker
-End If
-End Function
 
 Sub Button1_Click()
 'call sub to loop through worksheets
@@ -262,7 +244,7 @@ Dim I As Integer
                 End With
             'Selection.Clear
             Range("I1").Select
-            'Call CreateHeaderRow
+            Call CreateHeaderRow
            
          Next I
 Worksheets(1).Activate
