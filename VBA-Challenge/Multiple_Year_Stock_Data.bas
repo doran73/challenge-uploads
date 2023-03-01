@@ -6,7 +6,8 @@ Sub WorksheetLoop():
          Dim I As Integer
          Dim StartTime As Double
          Dim SecondsElapsed As Double
-         Dim SheetCount As String
+         Dim SheetResults As String
+         Dim SheetCount As Long
          
 
          ' Set WS_Count equal to the number of worksheets in the active
@@ -20,8 +21,9 @@ Sub WorksheetLoop():
             'MsgBox "Processing Sheet: " & I & "OF: " & WS_Count
             'start timer
             StartTime = Timer
-            Call ProcessSheet(I)
-            SheetCount = SheetCount & "Sheet Name " & ActiveWorkbook.Worksheets(I).Name & ": " & ActiveWorkbook.Worksheets(I).Cells(Rows.Count, 1).End(xlUp).Row & " Rows Processed" & vbCrLf
+            SheetCount = ActiveWorkbook.Worksheets(I).Cells(Rows.Count, 1).End(xlUp).Row
+            Call ProcessSheet(I, SheetCount)
+            SheetResults = SheetResults & "Sheet Name " & ActiveWorkbook.Worksheets(I).Name & ": " & SheetCount & " Rows Processed" & vbCrLf
 
             'MsgBox ActiveWorkbook.Worksheets(I).Name
             'MsgBox ActiveWorkbook.Worksheets(I).Cells(Rows.Count, 1).End(xlUp).Row
@@ -31,13 +33,14 @@ Sub WorksheetLoop():
        'Calculate how much time has passed
         SecondsElapsed = Round(Timer - StartTime, 2)
         'output time elapsed to run code in a message box
-         MsgBox "All Done in " & SecondsElapsed & " seconds " & vbCrLf & SheetCount
+        
         Worksheets(1).Activate
+        MsgBox "All Done in " & SecondsElapsed & " seconds " & vbCrLf & SheetResults
         
       End Sub
 
 
-Sub ProcessSheet(SheetNum As Integer):
+Sub ProcessSheet(SheetNum As Integer, LastRow As Long):
 'set focus on the worksheet number that is passed to sub
 Worksheets(SheetNum).Activate
 'Call CreateHeaderRow
@@ -46,8 +49,8 @@ Dim Ticker2 As String
 Dim StartRow As Long
 Dim EndRow As Long
 Dim OutputCount As Long
-Dim LastRow As Long
-LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+'Dim LastRow As Long
+'LastRow = Cells(Rows.Count, 1).End(xlUp).Row
 
 StartRow = 2
 OutputCount = 2
@@ -131,7 +134,7 @@ Dim PercentChange As Double
 
 End Function
 
-Sub GetGreatest()
+Function GetGreatest():
 'populate Greatest % increase, Greatest % Decrease and Greatest Total Volume for the current worksheet
 Dim gRng As Range
 Dim rngString As String
@@ -140,79 +143,73 @@ Dim MinIncrease As Long
 Dim MaxIncrease As Long
 Dim MaxStockVolume As Long
 'get last row for percent change column to be used in a range
-With ActiveSheet
+    With ActiveSheet
         LastRow = .Cells(.Rows.Count, "N").End(xlUp).Row
         LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
 
-rngString = "N1:N" & LastRow
-Set gRng = Range(rngString)
-'get the row number where the max value came from
-MaxIncrease = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
-'get the rownumber of where the min value came from
-MinIncrease = WorksheetFunction.Match(WorksheetFunction.Min(gRng), gRng, 0)
+        rngString = "N1:N" & LastRow
+        Set gRng = Range(rngString)
+        'get the row number where the max value came from
+        MaxIncrease = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
+        'get the rownumber of where the min value came from
+        MinIncrease = WorksheetFunction.Match(WorksheetFunction.Min(gRng), gRng, 0)
 
-'MsgBox MaxIncrease & " " & MinIncrease
-'MATCH(MAX(N1:N3001),N1:N3001,0)
-'populate cell with max and min value
-.Range("S2").Value = FormatPercent(WorksheetFunction.Max(gRng), 2)
-.Range("S3").Value = FormatPercent(WorksheetFunction.Min(gRng), 2)
-'set range to Total Stock Volume column
-rngString = "L1:L" & LastRow
-Set gRng = Range(rngString)
-.Range("S4").Value = WorksheetFunction.Max(gRng)
-'find row number where the max stock volume came from
-MaxStockVolume = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
-'MsgBox "Max Increase " & MaxIncrease & " " & "Min Increase " & MinIncrease & "Max Stock Volume " & MaxStockVolume
-'get the ticker for the corresponding values using row number
-.Range("R2").Value = Cells(MaxIncrease, 9).Value
-.Range("R3").Value = Cells(MinIncrease, 9).Value
-.Range("R4").Value = Cells(MaxStockVolume, 9).Value
-'auto fit columns
-.Range("R2:S4").Columns.AutoFit
-End With
+        'MsgBox MaxIncrease & " " & MinIncrease
+        'MATCH(MAX(N1:N3001),N1:N3001,0)
+        'populate cell with max and min value
+        .Range("S2").Value = FormatPercent(WorksheetFunction.Max(gRng), 2)
+        .Range("S3").Value = FormatPercent(WorksheetFunction.Min(gRng), 2)
+        'set range to Total Stock Volume column
+        rngString = "L1:L" & LastRow
+        Set gRng = Range(rngString)
+        .Range("S4").Value = WorksheetFunction.Max(gRng)
+        'find row number where the max stock volume came from
+        MaxStockVolume = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
+        'MsgBox "Max Increase " & MaxIncrease & " " & "Min Increase " & MinIncrease & "Max Stock Volume " & MaxStockVolume
+        'get the ticker for the corresponding values using row number
+        .Range("R2").Value = Cells(MaxIncrease, 9).Value
+        .Range("R3").Value = Cells(MinIncrease, 9).Value
+        .Range("R4").Value = Cells(MaxStockVolume, 9).Value
+        'auto fit columns
+        .Range("R2:S4").Columns.AutoFit
+    End With
 
-End Sub
+End Function
 
 
 
 
 Function CreateHeaderRow():
-'get blank column
-   Dim LastRow As Long
-    Dim LastColumn As Long
-    Dim StartColumn As Long
-    Dim HeaderRow As Long
+Dim LastRow As Long
+Dim LastColumn As Long
+Dim StartColumn As Long
+Dim HeaderRow As Long
     
-    'With ActiveSheet
-     '   LastRow = .Cells(.Rows.Count, "A").End(xlUp).Row
-      '  LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
-    'End With
-      'go 1 over from blank column
-    StartColumn = 9
-    HeaderRow = 1
+StartColumn = 9
+HeaderRow = 1
     'populate header row
     With ActiveSheet
-    'Ticker,Yearly Change, Percent Change,Total Stock Volume
-    .Cells(HeaderRow, StartColumn).Value = "Ticker"
-    .Cells(HeaderRow, StartColumn + 1).Value = "Year Open"
-    .Cells(HeaderRow, StartColumn + 2).Value = "Year Close"
-    .Cells(HeaderRow, StartColumn + 3).Value = "Total Stock Volume"
-    .Cells(HeaderRow, StartColumn + 4).Value = "Yearly Change"
-    .Cells(HeaderRow, StartColumn + 5).Value = "Percent Change"
-    'go 3 columns over then Ticker, Value
-    .Cells(HeaderRow, StartColumn + 9).Value = "Ticker"
-    .Cells(HeaderRow, StartColumn + 10).Value = "Value"
-    'go 1 row down and 2 columns to the left
-    'Greatest % Increase
-    .Cells(HeaderRow + 1, StartColumn + 8) = "Greatest % Increase"
-    'go 1 row down
-    'Greatest% Decrease
-    .Cells(HeaderRow + 2, StartColumn + 8) = "Greatest % Decrease"
-    'go 1 row down
-    'Greatest Total Volume
-    .Cells(HeaderRow + 3, StartColumn + 8) = "Greatest Total Volumne"
-    .Range("I1:N1").Columns.AutoFit
-    .Range("Q1:S4").Columns.AutoFit
+        'Ticker,Yearly Change, Percent Change,Total Stock Volume
+        .Cells(HeaderRow, StartColumn).Value = "Ticker"
+        .Cells(HeaderRow, StartColumn + 1).Value = "Year Open"
+        .Cells(HeaderRow, StartColumn + 2).Value = "Year Close"
+        .Cells(HeaderRow, StartColumn + 3).Value = "Total Stock Volume"
+        .Cells(HeaderRow, StartColumn + 4).Value = "Yearly Change"
+        .Cells(HeaderRow, StartColumn + 5).Value = "Percent Change"
+        'go 3 columns over then Ticker, Value
+        .Cells(HeaderRow, StartColumn + 9).Value = "Ticker"
+        .Cells(HeaderRow, StartColumn + 10).Value = "Value"
+        'go 1 row down and 2 columns to the left
+        'Greatest % Increase
+        .Cells(HeaderRow + 1, StartColumn + 8) = "Greatest % Increase"
+        'go 1 row down
+        'Greatest% Decrease
+        .Cells(HeaderRow + 2, StartColumn + 8) = "Greatest % Decrease"
+        'go 1 row down
+        'Greatest Total Volume
+        .Cells(HeaderRow + 3, StartColumn + 8) = "Greatest Total Volumne"
+        .Range("I1:N1").Columns.AutoFit
+        .Range("Q1:S4").Columns.AutoFit
     
     End With
     
@@ -225,7 +222,7 @@ Function CreateHeaderRow():
 End Function
 
 
-Sub Button1_Click()
+Sub Button1_Click():
 'call sub to loop through worksheets
     Call WorksheetLoop
 End Sub
