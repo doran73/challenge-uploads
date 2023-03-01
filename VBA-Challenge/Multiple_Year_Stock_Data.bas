@@ -4,6 +4,9 @@ Sub WorksheetLoop():
 
          Dim WS_Count As Integer
          Dim I As Integer
+         Dim StartTime As Double
+         Dim SecondsElapsed As Double
+         
 
          ' Set WS_Count equal to the number of worksheets in the active
          ' workbook.
@@ -14,19 +17,22 @@ Sub WorksheetLoop():
 
             ' Insert your code here.
             'MsgBox "Processing Sheet: " & I & "OF: " & WS_Count
+            'start timer
+            StartTime = Timer
             Call ProcessSheet(I)
-            ' The following line shows how to reference a sheet within
-            ' the loop by displaying the worksheet name in a dialog box.
-            'MsgBox ActiveWorkbook.Worksheets(I).Name
-
+            
          Next I
-        MsgBox "All Done"
+       'Calculate how much time has passed
+        SecondsElapsed = Round(Timer - StartTime, 2)
+        'output time elapsed to run code in a message box
+         MsgBox "All Done in " & SecondsElapsed & " seconds"
         Worksheets(1).Activate
         
       End Sub
 
 
 Sub ProcessSheet(SheetNum As Integer):
+'set focus on the worksheet number that is passed to sub
 Worksheets(SheetNum).Activate
 'Call CreateHeaderRow
 Dim Ticker As String
@@ -120,34 +126,42 @@ Dim PercentChange As Double
 End Function
 
 Sub GetGreatest()
+'populate Greatest % increase, Greatest % Decrease and Greatest Total Volume for the current worksheet
 Dim gRng As Range
 Dim rngString As String
 Dim LastRow
 Dim MinIncrease As Long
 Dim MaxIncrease As Long
 Dim MaxStockVolume As Long
+'get last row for percent change column to be used in a range
 With ActiveSheet
         LastRow = .Cells(.Rows.Count, "N").End(xlUp).Row
         LastColumn = .Cells(1, .Columns.Count).End(xlToLeft).Column
 
 rngString = "N1:N" & LastRow
 Set gRng = Range(rngString)
+'get the row number where the max value came from
 MaxIncrease = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
+'get the rownumber of where the min value came from
 MinIncrease = WorksheetFunction.Match(WorksheetFunction.Min(gRng), gRng, 0)
 
 'MsgBox MaxIncrease & " " & MinIncrease
 'MATCH(MAX(N1:N3001),N1:N3001,0)
+'populate cell with max and min value
 .Range("S2").Value = FormatPercent(WorksheetFunction.Max(gRng), 2)
 .Range("S3").Value = FormatPercent(WorksheetFunction.Min(gRng), 2)
+'set range to Total Stock Volume column
 rngString = "L1:L" & LastRow
 Set gRng = Range(rngString)
 .Range("S4").Value = WorksheetFunction.Max(gRng)
+'find row number where the max stock volume came from
 MaxStockVolume = WorksheetFunction.Match(WorksheetFunction.Max(gRng), gRng, 0)
 'MsgBox "Max Increase " & MaxIncrease & " " & "Min Increase " & MinIncrease & "Max Stock Volume " & MaxStockVolume
+'get the ticker for the corresponding values using row number
 .Range("R2").Value = Cells(MaxIncrease, 9).Value
 .Range("R3").Value = Cells(MinIncrease, 9).Value
 .Range("R4").Value = Cells(MaxStockVolume, 9).Value
-
+'auto fit columns
 .Range("R2:S4").Columns.AutoFit
 End With
 
@@ -211,6 +225,8 @@ Sub Button1_Click()
 End Sub
 
 Sub Button2_Click():
+'when the reset sheets button is clicked it will clear all the values from Column i to Column n and reset the cell background color to the default
+'this will be done to all sheets
 'declare variables
 Dim rng As Range
 Dim cell As Range
@@ -233,6 +249,7 @@ Dim I As Integer
             Set rng = Range(rngString)
             'rng.Interior.Color = xlNone
             rng.ClearContents
+            'Clear greatest values
             Set rng = Range("R2:S4")
             rng.ClearContents
             'set cell interior color back to default for columns M to N
@@ -248,20 +265,6 @@ Dim I As Integer
            
          Next I
 Worksheets(1).Activate
-
-
-
-
-
-'Loop through each cell in range
-'For Each cell In rng
- '   cell.ClearContents
-'Next cell
-
-'set interior color to nothing for columns I to column N
-'clear contents of column q from row 1 to 4
-'clear header row from column i to column p
-'go back to first sheet when done
 
 End Sub
 
