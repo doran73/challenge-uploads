@@ -43,7 +43,7 @@ Sub WorksheetLoop():
 Sub ProcessSheet(SheetNum As Integer, LastRow As Long):
 'set focus on the worksheet number that is passed to sub
 Worksheets(SheetNum).Activate
-'Call CreateHeaderRow
+Call CreateHeaderRow
 Dim Ticker As String
 Dim Ticker2 As String
 Dim StartRow As Long
@@ -93,6 +93,10 @@ Dim rng As Range
 Dim RangeString As String
 Dim YearChange As Double
 Dim PercentChange As Double
+Dim sHigh As Double
+Dim sLow As Double
+Dim PercentChange2 As Double
+Dim YearChange2 As Double
 
     sOpen = Cells(StartRow, 3).Value
     sClose = Cells(EndRow, 6).Value
@@ -126,7 +130,39 @@ Dim PercentChange As Double
         Else
             Cells(OutputCount, 14).Interior.Color = vbGreen
         End If
+    'get the Max Value for High column
+    Cells(OutputCount, 21).Value = TickerValue
+    RangeString = "D" & StartRow & ":" & "D" & EndRow
+    Set rng = Range(RangeString)
+    sHigh = WorksheetFunction.Max(rng)
+    Cells(OutputCount, 22).Value = sHigh
+    
+    'get the Min Value for Low Column
+    RangeString = "E" & StartRow & ":" & "E" & EndRow
+    Set rng = Range(RangeString)
+    sLow = WorksheetFunction.Min(rng)
+    Cells(OutputCount, 23).Value = sLow
+    YearChange2 = sHigh - sLow
+    PercentChange2 = (sHigh - sLow) / sLow
+    Cells(OutputCount, 24).Value = YearChange2
+    Cells(OutputCount, 25).Value = FormatPercent(PercentChange2, 2)
+    
+    'If Yearchange < 0 then Cell Background Color is Red Else Cell Background Color is Green
+        'If YearChange2 < 0 Then
+        '    Cells(OutputCount, 24).Interior.Color = vbRed
+        'Else
+        '    Cells(OutputCount, 24).Interior.Color = vbGreen
+        'End If
 
+    'The percentage change from the opening price at the beginning of a given year to the closing price at the end of that year.
+    'Cells(OutputCount, 14) = (sClose - sOpen) * 100 / sOpen
+    'Cells(OutputCount, 14).Value = FormatPercent(PercentChange, 2)
+     '   If PercentChange2 < 0 Then
+     '       Cells(OutputCount, 25).Interior.Color = vbRed
+     '   Else
+     '       Cells(OutputCount, 25).Interior.Color = vbGreen
+     '   End If
+    
 
 
 
@@ -172,6 +208,13 @@ Dim MaxStockVolume As Long
         .Range("R4").Value = Cells(MaxStockVolume, 9).Value
         'auto fit columns
         .Range("R2:S4").Columns.AutoFit
+        rngString = "U1:Y" & LastRow
+        .Sort.SortFields.Add Key:=Range("Y1"), Order:=xlDescending
+        .Sort.SetRange Range(rngString)
+        .Sort.Header = xlYes
+        .Sort.Apply
+        .Columns("U:Y").EntireColumn.AutoFit
+        
     End With
 
 End Function
@@ -196,9 +239,16 @@ HeaderRow = 1
         .Cells(HeaderRow, StartColumn + 3).Value = "Total Stock Volume"
         .Cells(HeaderRow, StartColumn + 4).Value = "Yearly Change"
         .Cells(HeaderRow, StartColumn + 5).Value = "Percent Change"
+        
         'go 3 columns over then Ticker, Value
         .Cells(HeaderRow, StartColumn + 9).Value = "Ticker"
         .Cells(HeaderRow, StartColumn + 10).Value = "Value"
+        .Cells(HeaderRow, StartColumn + 12).Value = "Ticker"
+        .Cells(HeaderRow, StartColumn + 13).Value = "Year High"
+        .Cells(HeaderRow, StartColumn + 14).Value = "Year Low"
+        .Cells(HeaderRow, StartColumn + 15).Value = "Yearly Change"
+        .Cells(HeaderRow, StartColumn + 16).Value = "Percent Change"
+        
         'go 1 row down and 2 columns to the left
         'Greatest % Increase
         .Cells(HeaderRow + 1, StartColumn + 8) = "Greatest % Increase"
@@ -208,8 +258,10 @@ HeaderRow = 1
         'go 1 row down
         'Greatest Total Volume
         .Cells(HeaderRow + 3, StartColumn + 8) = "Greatest Total Volumne"
-        .Range("I1:N1").Columns.AutoFit
-        .Range("Q1:S4").Columns.AutoFit
+        
+        '.Range("I1:N1").Columns.AutoFit
+        '.Range("Q1:S4").Columns.AutoFit
+        
     
     End With
     
@@ -255,8 +307,18 @@ Dim I As Integer
             'Clear greatest values
             Set rng = Range("R2:S4")
             rng.ClearContents
+            rngString = "U2:Y" & LastRow
+            Set rng = Range(rngString)
+            rng.ClearContents
             'set cell interior color back to default for columns M to N
             Columns("M:N").Select
+                With Selection.Interior
+                .Pattern = xlNone
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+                End With
+                
+             Columns("X:Y").Select
                 With Selection.Interior
                 .Pattern = xlNone
                 .TintAndShade = 0
