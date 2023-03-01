@@ -6,6 +6,7 @@ Sub WorksheetLoop():
          Dim I As Integer
          Dim StartTime As Double
          Dim SecondsElapsed As Double
+         Dim SheetCount As String
          
 
          ' Set WS_Count equal to the number of worksheets in the active
@@ -20,12 +21,17 @@ Sub WorksheetLoop():
             'start timer
             StartTime = Timer
             Call ProcessSheet(I)
-            
+            SheetCount = SheetCount & "Sheet Name " & ActiveWorkbook.Worksheets(I).Name & ": " & ActiveWorkbook.Worksheets(I).Cells(Rows.Count, 1).End(xlUp).Row & " Rows Processed" & vbCrLf
+
+            'MsgBox ActiveWorkbook.Worksheets(I).Name
+            'MsgBox ActiveWorkbook.Worksheets(I).Cells(Rows.Count, 1).End(xlUp).Row
+
+
          Next I
        'Calculate how much time has passed
         SecondsElapsed = Round(Timer - StartTime, 2)
         'output time elapsed to run code in a message box
-         MsgBox "All Done in " & SecondsElapsed & " seconds"
+         MsgBox "All Done in " & SecondsElapsed & " seconds " & vbCrLf & SheetCount
         Worksheets(1).Activate
         
       End Sub
