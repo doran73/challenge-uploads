@@ -1,0 +1,35 @@
+Departments
+dept_id int PK
+dept_no varchar
+dept_name varchar
+
+Dept_Emp
+Dept_Emp_ID int PK
+Emp_No int FK Employees.Emp_no
+Dept_No int FK Departments.Dept_no
+
+Dept_Manager
+Dept_Manager_ID int PK
+Dept_No varchar FK Departments.dept_no
+Emp_No int FK Employees.Emp_no
+
+Employees
+Emp_ID int PK
+Emp_No int
+Emp_Title varchar
+Birth_Date date
+first_name varchar
+last_name varchar
+sex varchar
+hire_date date
+
+Salaries
+Salary_ID int PK
+Emp_No int FK Employees.Emp_No
+Salary double
+
+Titles
+ID int PK
+title_ID varchar
+title varchar
+
