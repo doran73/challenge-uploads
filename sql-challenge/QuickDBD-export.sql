@@ -4,8 +4,8 @@
 
 CREATE TABLE departments (
     dept_id int   NOT NULL,
-    dept_no varchar   NOT NULL,
-    dept_name varchar   NOT NULL
+    dept_no varchar(10)  NOT NULL,
+    dept_name varchar(255)   NOT NULL
 );
 
 CREATE TABLE dept_emp (
@@ -19,7 +19,7 @@ CREATE TABLE dept_emp (
 
 CREATE TABLE dept_manager (
     Dept_Manager_ID int   NOT NULL,
-    Dept_No varchar   NOT NULL,
+    Dept_No varchar(10)   NOT NULL,
     Emp_No int   NOT NULL,
     CONSTRAINT pk_dept_manager PRIMARY KEY (
         Dept_Manager_ID
@@ -29,11 +29,11 @@ CREATE TABLE dept_manager (
 CREATE TABLE employees (
     Emp_ID int   NOT NULL,
     Emp_No int   NOT NULL,
-    Emp_Title varchar   NOT NULL,
+    Emp_Title varchar(255)   NOT NULL,
     Birth_Date date   NOT NULL,
-    first_name varchar   NOT NULL,
-    last_name varchar   NOT NULL,
-    sex varchar   NOT NULL,
+    first_name varchar(50)   NOT NULL,
+    last_name varchar(50)   NOT NULL,
+    sex varchar(50)   NOT NULL,
     hire_date date   NOT NULL,
     CONSTRAINT pk_employees PRIMARY KEY (
         Emp_No
@@ -51,8 +51,8 @@ CREATE TABLE salaries (
 
 CREATE TABLE titles (
     ID int   NOT NULL,
-    title_ID varchar   NOT NULL,
-    title varchar   NOT NULL,
+    title_ID varchar(255)   NOT NULL,
+    title varchar(255)   NOT NULL,
     CONSTRAINT pk_titles PRIMARY KEY (
         title_ID
      )
